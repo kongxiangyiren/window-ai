@@ -21,7 +21,7 @@ jobs:
           yarn build
       # 部署
       - name: Deploy 🚀 # 部署
-        uses: JamesIves/github-pages-deploy-action@v4.4.0
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: dv-pages # 部署后提交到那个分支
           folder: dist # 存放build后产物的目录
