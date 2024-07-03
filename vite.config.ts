@@ -39,6 +39,9 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))
       }
+    },
+    server: {
+      host: true
     }
   };
 });
