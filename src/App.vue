@@ -6,7 +6,7 @@
           class="dialog-item"
           :class="{ 'dialog-item-me': item.role === 'me', 'dialog-item-ai': item.role === 'ai' }"
         >
-          <div class="dialog-item-main">{{ item.text }}</div>
+          <div class="dialog-item-main" v-html="md.render(item.text)"></div>
         </div>
       </template>
     </div>
@@ -48,7 +48,9 @@
 
 <script setup lang="ts">
   import { onMounted, ref } from 'vue';
-
+  import markdownit from 'markdown-it';
+  import hljs from 'highlight.js';
+  const md = markdownit();
   const question = ref('');
   const loading = ref(false);
   const dialogs = ref<
@@ -141,6 +143,7 @@
       previousLength = chunk.length;
 
       dialog!.text += newContent;
+      hljs.highlightAll();
     }
     console.log(dialog!.text); // 最终的 AI 回答（完整版）
     loading.value = false;

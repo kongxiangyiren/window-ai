@@ -1,5 +1,5 @@
 const RUNTIME = 'window-ai';
-const HOSTNAME_WHITELIST = [self.location.hostname, 'unpkg.com'];
+const HOSTNAME_WHITELIST = [self.location.hostname, 'unpkg.com', 'lib.baomitu.com'];
 
 const getFixedUrl = req => {
   const now = Date.now();

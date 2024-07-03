@@ -31,6 +31,16 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
               var: 'ViewUIPlus',
               path: `dist/viewuiplus.min.js`,
               css: ['dist/styles/viewuiplus.css']
+            },
+            {
+              name: 'markdown-it',
+              var: 'markdownit',
+              path: 'dist/markdown-it.min.js'
+            },
+            {
+              name: 'highlight.js',
+              var: 'hljs',
+              path: '//lib.baomitu.com/highlight.js/11.7.0/highlight.min.js'
             }
           ]
         })
