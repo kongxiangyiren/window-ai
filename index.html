@@ -9,10 +9,15 @@
     <link rel="icon" href="/window-ai/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Window AI</title>
-    <script type="module" crossorigin src="/window-ai/assets/index-DMveNIcz.js"></script>
+    <script type="module" crossorigin src="/window-ai/assets/index-CsdCUsKW.js"></script>
     <link rel="stylesheet" crossorigin href="/window-ai/assets/index-D5WO2U1Y.css">
   </head>
   <body>
     <div id="app"></div>
+    <script>
+      if (typeof navigator.serviceWorker !== 'undefined') {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
   </body>
 </html>
