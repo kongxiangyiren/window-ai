@@ -65,12 +65,12 @@
   onMounted(async () => {
     if (!window.ai) {
       console.log(
-        '不支持AI功能, 请在支持AI功能的浏览器中打开,详情参考：https://juejin.cn/post/7384997062415843339#heading-2'
+        '不支持AI功能, 请在支持AI功能的浏览器中打开,chrome dev 下载：https://www.google.cn/intl/zh-CN/chrome/dev/next-steps.html 详情参考：https://juejin.cn/post/7384997062415843339#heading-2'
       );
       dialogs.value.push({
         id: dialogs.value.length + 1,
         role: 'ai',
-        text: '不支持AI功能, 请在支持AI功能的浏览器中打开,详情参考：https://juejin.cn/post/7384997062415843339#heading-2'
+        text: '不支持AI功能, 请在支持AI功能的浏览器中打开,chrome dev 下载：https://www.google.cn/intl/zh-CN/chrome/dev/next-steps.html 详情参考：https://juejin.cn/post/7384997062415843339#heading-2'
       });
       return;
     }
