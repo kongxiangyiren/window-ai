@@ -22,6 +22,7 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
       vueDevTools(),
       cdn &&
         importToCDN({
+          prodUrl: '//unpkg.com/{name}@{version}/{path}',
           // enableInDevMode: true,
           modules: [
             'vue',
