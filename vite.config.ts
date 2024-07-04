@@ -57,8 +57,8 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
         registerType: 'autoUpdate',
         manifest: {
           description: 'Window AI',
-          theme_color: '#000',
-          background_color: '#000',
+          theme_color: '#DDE3E9',
+          background_color: '#DDE3E9',
           icons: [
             //添加图标， 注意路径和图像像素正确
             {
