@@ -55,6 +55,7 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
           enabled: true
         },
         registerType: 'autoUpdate',
+        injectRegister: 'inline',
         manifest: {
           description: 'Window AI',
           theme_color: '#DDE3E9',
