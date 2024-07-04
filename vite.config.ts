@@ -73,7 +73,7 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
           runtimeCaching: [
             // woff2?v=3.0.0 结尾要缓存
             {
-              urlPattern: /.*\.(woff2|woff)\?v=\d+\.\d+\.\d+$/,
+              urlPattern: /.*woff2\?v=\d+\.\d+\.\d+$/,
               handler: 'CacheFirst',
               options: {
                 cacheName: 'font-cache',
