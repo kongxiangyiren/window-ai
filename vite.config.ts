@@ -52,7 +52,6 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
         }),
       VitePWA({
         registerType: 'autoUpdate',
-        injectRegister: 'inline',
         manifest: {
           theme_color: '#ffffff'
         },
@@ -67,18 +66,6 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
                 expiration: {
                   maxEntries: 100,
                   maxAgeSeconds: 60 * 60 * 24 * 365
-                }
-              }
-            },
-            // 设置html 联网时优先使用网络，离线时使用缓存
-            {
-              urlPattern: /.*\.html/,
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'html-cache',
-                expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 7 * 24 * 60 * 60
                 }
               }
             }
