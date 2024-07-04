@@ -58,12 +58,24 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
         },
         workbox: {
           runtimeCaching: [
-            // ?v=3.0.0 结尾要缓存
+            // woff2?v=3.0.0 结尾要缓存
             {
-              urlPattern: /.*\?v=\d+\.\d+\.\d+$/,
+              urlPattern: /.*\.(woff2|woff)\?v=\d+\.\d+\.\d+$/,
               handler: 'CacheFirst',
               options: {
-                cacheName: 'cdn-cache',
+                cacheName: 'font-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24 * 365
+                }
+              }
+            },
+            // 设置html 联网时优先使用网络，离线时使用缓存
+            {
+              urlPattern: /.*\.html/,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'html-cache',
                 expiration: {
                   maxEntries: 100,
                   maxAgeSeconds: 7 * 24 * 60 * 60
