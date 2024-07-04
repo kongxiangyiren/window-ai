@@ -4,6 +4,7 @@ import { ConfigEnv, defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import { Plugin as importToCDN } from 'vite-plugin-cdn-import';
+import simpleHtmlPlugin from 'vite-plugin-simple-html';
 
 let cdn = false;
 
@@ -41,9 +42,25 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
               name: 'highlight.js',
               var: 'hljs',
               path: '//lib.baomitu.com/highlight.js/11.7.0/highlight.min.js'
+            },
+            {
+              name: 'clipboard',
+              var: 'ClipboardJS',
+              path: 'dist/clipboard.min.js'
             }
           ]
-        })
+        }),
+      simpleHtmlPlugin({
+        minify: true,
+        inject: {
+          data: {
+            sw:
+              command === 'serve'
+                ? ''
+                : `<script>if (typeof navigator.serviceWorker !== 'undefined') {navigator.serviceWorker.register('sw.js');}</script>`
+          }
+        }
+      })
     ],
     resolve: {
       alias: {

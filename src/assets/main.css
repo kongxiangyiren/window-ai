@@ -35,7 +35,7 @@ pre {
 .hljs {
   position: relative;
   display: block !important;
-  overflow-x: hidden;
+  overflow-x: auto;
   background: #21252b !important;
   color: #999;
   padding: 30px 5px 10px 15px !important;
