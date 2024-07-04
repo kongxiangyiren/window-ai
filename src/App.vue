@@ -184,8 +184,6 @@
     word-wrap: break-word;
     margin-top: 16px;
     border-radius: 4px;
-    /* 使用 \n 换行 */
-    white-space: pre-wrap;
   }
 
   .dialog-item-me {
