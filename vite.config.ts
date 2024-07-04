@@ -4,7 +4,7 @@ import { ConfigEnv, defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import { Plugin as importToCDN } from 'vite-plugin-cdn-import';
-import simpleHtmlPlugin from 'vite-plugin-simple-html';
+import { VitePWA } from 'vite-plugin-pwa';
 
 let cdn = false;
 
@@ -50,15 +50,27 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
             }
           ]
         }),
-      simpleHtmlPlugin({
-        minify: true,
-        inject: {
-          data: {
-            sw:
-              command === 'serve'
-                ? ''
-                : `<script>if (typeof navigator.serviceWorker !== 'undefined') {navigator.serviceWorker.register('sw.js');}</script>`
-          }
+      VitePWA({
+        registerType: 'autoUpdate',
+        injectRegister: 'inline',
+        manifest: {
+          theme_color: '#ffffff'
+        },
+        workbox: {
+          runtimeCaching: [
+            // ?v=3.0.0 结尾要缓存
+            {
+              urlPattern: /.*\?v=\d+\.\d+\.\d+$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'cdn-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 7 * 24 * 60 * 60
+                }
+              }
+            }
+          ]
         }
       })
     ],
