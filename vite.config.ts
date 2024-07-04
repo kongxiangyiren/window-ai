@@ -51,9 +51,22 @@ export default defineConfig(({ mode, command }: ConfigEnv) => {
           ]
         }),
       VitePWA({
+        devOptions: {
+          enabled: true
+        },
         registerType: 'autoUpdate',
         manifest: {
-          theme_color: '#ffffff'
+          description: 'Window AI',
+          theme_color: '#000',
+          background_color: '#000',
+          icons: [
+            //添加图标， 注意路径和图像像素正确
+            {
+              src: '512x.png',
+              sizes: '512x512',
+              type: 'image/png'
+            }
+          ]
         },
         workbox: {
           runtimeCaching: [
