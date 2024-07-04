@@ -5,6 +5,10 @@ on:
       - main # 这里表示push到main分支就会触发流程,请根据实际情况修改
     paths-ignore: # 这里表示忽略的文件或目录，不会触发流程
       - 'README.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.github/**'
+      - '.vscode/**'
 
 permissions:
   contents: write
