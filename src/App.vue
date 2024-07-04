@@ -144,9 +144,9 @@
       previousLength = chunk.length;
 
       dialog!.text += newContent;
-      hljs.highlightAll();
     }
     console.log(dialog!.text); // 最终的 AI 回答（完整版）
+    hljs.highlightAll();
     codecopy_func();
     loading.value = false;
     return;
