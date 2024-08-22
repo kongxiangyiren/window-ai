@@ -2,9 +2,8 @@
 
 使用 window.ai 创建 ai 聊天
 
-## 下载 chrome dev
+## 更新 chrome 到 128
 
-[chrome dev](https://www.google.cn/intl/zh-CN/chrome/dev/next-steps.html)
 
 ## 启用 Gemini Nano 和 Prompt API
 
@@ -27,6 +26,11 @@
 3、模型下载完成后, 再次在开发者工具的控制台中输入`await window.ai.canCreateTextSession()`，如果这次返回 `readily`，那就 OK 了。
 
 4、如果还是不行，可以等一会儿再试。多次尝试后仍然失败，请关闭此文章🐶。
+
+
+## 模型下载位置
+
+C:\Users\用户名\AppData\Local\Google\Chrome\User Data\OptGuideOnDeviceModel
 
 # 感谢
 
