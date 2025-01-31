@@ -6,47 +6,39 @@ declare global {
   }
 
   interface AI {
-    /**
-     * 判断模型是否准备好了
-     * @example
-     * ```js
-     * const availability = await window.ai.canCreateTextSession()
-     * if (availability === 'readily') {
-     *  console.log('模型已经准备好了')
-     * } else if (availability === 'after-download') {
-     *  console.log('模型正在下载中')
-     * } else {
-     *  console.log('模型还没下载')
-     * }
-     * ```
-     */
-    canCreateTextSession(): Promise<AIModelAvailability>;
+    languageModel: {
+      /**
+       * 判断模型是否准备好了
+       * @example
+       * ```js
+       * const availability = (await window.ai.languageModel.capabilities()).available
+       * if (availability === 'readily') {
+       *  console.log('模型已经准备好了')
+       * } else if (availability === 'after-download') {
+       *  console.log('模型正在下载中')
+       * } else {
+       *  console.log('模型还没下载')
+       * }
+       * ```
+       */
+      capabilities(): Promise<{
+        available: AIModelAvailability;
+        defaultTemperature?: number;
+        defaultTopK?: number;
+        maxTopK?: number;
+      }>;
 
-    /**
-     * 创建一个文本生成会话进程
-     * @param options 会话配置
-     * @example
-     * ```js
-     * const session = await window.ai.createTextSession({
-     *  topK: 50, // 生成文本的多样性，越大越多样
-     *  temperature: 0.8 // 生成文本的创造性，越大越随机
-     * })
-     *
-     * const text = await session.prompt('今天天气怎么样？')
-     * console.log(text)
-     * ```
-     */
-    createTextSession(options?: AITextSessionOptions): Promise<AITextSession>;
-
-    /**
-     * 获取默认的文本生成会话配置
-     * @example
-     * ```js
-     * const options = await window.ai.defaultTextSessionOptions()
-     * console.log(options) // { topK: 50, temperature: 0.8 }
-     * ```
-     */
-    defaultTextSessionOptions(): Promise<AITextSessionOptions>;
+      create(): Promise<
+        {
+          maxTokens: number;
+          oncontextoverflow: null;
+          temperature: number;
+          tokensLeft: number;
+          tokensSoFar: number;
+          topK: number;
+        } & AITextSession
+      >;
+    };
   }
 
   /**

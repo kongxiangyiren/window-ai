@@ -63,7 +63,16 @@
   >([]);
   const disabled = ref(true);
   // 创建一个会话进程
-  const session = ref<Promise<AITextSession> | null>(null);
+  const session = ref<Promise<
+    {
+      maxTokens: number;
+      oncontextoverflow: null;
+      temperature: number;
+      tokensLeft: number;
+      tokensSoFar: number;
+      topK: number;
+    } & AITextSession
+  > | null>(null);
 
   onMounted(async () => {
     if (!window.ai) {
@@ -77,10 +86,10 @@
       });
       return;
     }
-    const availability = await window.ai.canCreateTextSession();
+    const availability = (await window.ai.languageModel.capabilities()).available;
     if (availability === 'readily') {
       console.log('模型已经准备好了');
-      session.value = window.ai.createTextSession();
+      session.value = window.ai.languageModel.create();
       disabled.value = false;
     } else if (availability === 'after-download') {
       console.log('模型正在下载中');
@@ -160,7 +169,7 @@
     // 销毁当前会话
     (await session.value).destroy();
     // 创建新的会话
-    session.value = window.ai.createTextSession();
+    session.value = window.ai.languageModel.create();
   }
 
   const preview = ref();
