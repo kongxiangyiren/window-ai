@@ -116,7 +116,7 @@ import logo from './assets/32x.png'
 import { ref } from 'vue'
 
 import { Button } from 'vue-devui'
-import 'vue-devui/button/style.css'
+// import 'vue-devui/button/style.css'
 import type { AITextSession } from '../env'
 
 function openGithub() {

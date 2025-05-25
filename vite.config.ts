@@ -35,7 +35,7 @@ export default defineConfig({
     }),
     VitePWA({
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
       registerType: 'autoUpdate',
       injectRegister: 'inline',
@@ -52,28 +52,41 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
-        runtimeCaching: [
-          // woff?1111 结尾要缓存
-          {
-            urlPattern: /.*woff\?\d+$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'font-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 365,
-              },
-            },
-          },
-        ],
-      },
+      // workbox: {
+      //   runtimeCaching: [
+      //     // woff?1111 结尾要缓存
+      //     {
+      //       urlPattern: /.*woff\?\d+$/,
+      //       handler: 'CacheFirst',
+      //       options: {
+      //         cacheName: 'font-cache',
+      //         expiration: {
+      //           maxEntries: 100,
+      //           maxAgeSeconds: 60 * 60 * 24 * 365,
+      //         },
+      //       },
+      //     },
+      //   ],
+      // },
     }),
   ],
   base: '/window-ai/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            console.log(id)
+
+            return id.toString().split('node_modules/')[1].split('/')[0].toString()
+          }
+        },
+      },
     },
   },
 })
