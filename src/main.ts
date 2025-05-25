@@ -1,16 +1,13 @@
-import './assets/main.css';
+import { createApp } from 'vue'
+import App from './App.vue'
 
-import { createApp } from 'vue';
-import App from './App.vue';
-import ViewUIPlus from 'view-ui-plus';
+import '@devui-design/icons/icomoon/devui-icon.css'
 
-console.log();
+import Icon from 'vue-devui/icon'
+import 'vue-devui/icon/style.css'
 
-if (
-  import.meta.env.VITE_APP_CDN !== 'true' ||
-  (import.meta.env.VITE_APP_CDN === 'true' && import.meta.env.DEV)
-) {
-  import('view-ui-plus/dist/styles/viewuiplus.css');
-}
+const app = createApp(App)
 
-createApp(App).use(ViewUIPlus).mount('#app');
+app.use(Icon)
+
+app.mount('#app')

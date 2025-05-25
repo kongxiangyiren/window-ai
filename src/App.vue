@@ -1,261 +1,324 @@
 <template>
-  <div class="container ivu-p">
-    <div class="dialog">
-      <template v-for="(item, index) in dialogs" :key="index">
-        <div
-          class="dialog-item"
-          :class="{ 'dialog-item-me': item.role === 'me', 'dialog-item-ai': item.role === 'ai' }"
-        >
-          <div class="dialog-item-main" ref="preview" v-html="md.render(item.text)"></div>
+  <McLayout class="container">
+    <McHeader :title="'window-AI'" :logoImg="logo">
+      <template #operationArea>
+        <div class="operations" style="cursor: pointer" @click="openGithub">
+          <i class="icon-helping"></i>
         </div>
       </template>
-    </div>
-    <div class="question ivu-mt">
-      <Input
-        v-model="question"
-        type="textarea"
-        :autosize="{ minRows: 4, maxRows: 6 }"
-        placeholder="输入你的问题"
+    </McHeader>
+    <McLayoutContent
+      v-if="startPage"
+      style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      "
+    >
+      <McIntroduction
+        :logoImg="logo"
+        :title="'window-AI'"
+        :subTitle="'Hi，欢迎使用 window-AI'"
+        :description="description"
+      ></McIntroduction>
+      <McPrompt
+        :list="introPrompt.list"
+        :direction="introPrompt.direction"
+        class="intro-prompt"
+        @itemClick="onSubmit($event.label)"
+      ></McPrompt>
+    </McLayoutContent>
+    <McLayoutContent class="content-container" ref="contentContainer" v-else>
+      <template v-for="(msg, idx) in messages" :key="idx">
+        <McBubble
+          v-if="msg.role === 'user'"
+          :content="msg.content"
+          :align="'right'"
+          :avatarConfig="{ imgSrc: 'https://matechat.gitcode.com/png/demo/userAvatar.svg' }"
+        >
+        </McBubble>
+        <McBubble
+          v-else
+          :loading="msg.loading ?? false"
+          :avatarConfig="{ imgSrc: 'https://matechat.gitcode.com/logo.svg' }"
+        >
+          <McMarkdownCard :content="msg.content"></McMarkdownCard>
+          <template #bottom>
+            <div class="bubble-bottom-operations">
+              <i class="icon-copy-new"></i>
+              <i class="icon-like"></i>
+              <i class="icon-dislike"></i>
+            </div>
+          </template>
+        </McBubble>
+      </template>
+    </McLayoutContent>
+    <div class="shortcut" style="display: flex; align-items: center; gap: 8px">
+      <McPrompt
+        v-if="!startPage"
+        :list="simplePrompt"
+        :direction="'horizontal'"
+        style="flex: 1"
+        @itemClick="onSubmit($event.label)"
+      ></McPrompt>
+      <Button
+        style="margin-left: auto"
+        icon="add"
+        shape="circle"
+        title="新建对话"
+        size="md"
+        @click="newConversation"
       />
-      <Row class="ivu-mt">
-        <Col>
-          <Button
-            type="primary"
-            size="large"
-            icon="md-send"
-            :disabled="disabled"
-            :loading="loading"
-            @click="handleSend"
-          >
-            发送
-          </Button>
-        </Col>
-        <Col>
-          <Button
-            size="large"
-            class="ivu-ml"
-            icon="md-add"
-            :disabled="loading || disabled"
-            @click="handleNewChat"
-          >
-            新对话
-          </Button>
-        </Col>
-      </Row>
     </div>
-  </div>
+    <McLayoutSender>
+      <McInput
+        :value="inputValue"
+        :maxLength="2000"
+        @change="(e: string) => (inputValue = e)"
+        @submit="onSubmit"
+      >
+        <template #extra>
+          <div class="input-foot-wrapper">
+            <div class="input-foot-left">
+              <span class="input-foot-maxlength">{{ inputValue.length }}/2000</span>
+            </div>
+            <div class="input-foot-right">
+              <Button
+                icon="op-clearup"
+                shape="round"
+                :disabled="!inputValue"
+                @click="inputValue = ''"
+                ><span class="demo-button-content">清空输入</span></Button
+              >
+            </div>
+          </div>
+        </template>
+      </McInput>
+    </McLayoutSender>
+  </McLayout>
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
-  import markdownit from 'markdown-it';
-  import hljs from 'highlight.js';
-  import ClipboardJS from 'clipboard';
-  const md = markdownit();
-  const question = ref('');
-  const loading = ref(false);
-  const dialogs = ref<
-    Array<{
-      id: number;
-      role: 'me' | 'ai';
-      text: string;
-    }>
-  >([]);
-  const disabled = ref(true);
-  // 创建一个会话进程
-  const session = ref<Promise<
+import {
+  McBubble,
+  McHeader,
+  McInput,
+  McIntroduction,
+  McLayoutContent,
+  McLayout,
+  McLayoutSender,
+  McMarkdownCard,
+  McPrompt,
+} from '@matechat/core'
+import logo from './assets/32x.png'
+import { ref } from 'vue'
+
+import { Button } from 'vue-devui'
+import 'vue-devui/button/style.css'
+import type { AITextSession } from '../env'
+
+function openGithub() {
+  window.open('https://github.com/kongxiangyiren/window-ai', '_blank', 'noopener noreferrer')
+}
+
+const description = [
+  'window-AI 使用 chrome 提供的浏览器 AI 功能',
+  '详情查看: https://github.com/kongxiangyiren/window-ai',
+]
+const introPrompt = {
+  direction: 'horizontal',
+  list: [
     {
-      maxTokens: number;
-      oncontextoverflow: null;
-      temperature: number;
-      tokensLeft: number;
-      tokensSoFar: number;
-      topK: number;
-    } & AITextSession
-  > | null>(null);
+      value: 'quickSort',
+      label: '帮我写一个快速排序',
+      iconConfig: { name: 'icon-info-o', color: '#5e7ce0' },
+      desc: '使用 js 实现一个快速排序',
+    },
+    {
+      value: 'helpMd',
+      label: '你可以帮我做些什么？',
+      iconConfig: { name: 'icon-star', color: 'rgb(255, 215, 0)' },
+      desc: '了解当前大模型可以帮你做的事',
+    },
+    {
+      value: 'bindProjectSpace',
+      label: '介绍一下自己',
+      iconConfig: { name: 'icon-priority', color: '#3ac295' },
+      desc: '介绍一下自己',
+    },
+  ],
+}
+const simplePrompt = [
+  {
+    value: 'quickSort',
+    iconConfig: { name: 'icon-info-o', color: '#5e7ce0' },
+    label: '帮我写一个快速排序',
+  },
+  {
+    value: 'helpMd',
+    iconConfig: { name: 'icon-star', color: 'rgb(255, 215, 0)' },
+    label: '你可以帮我做些什么？',
+  },
+]
+const startPage = ref(true)
+const inputValue = ref('')
 
-  onMounted(async () => {
-    if (!window.ai) {
-      console.log(
-        '不支持AI功能, 请在支持AI功能的浏览器中打开,详情参考：https://github.com/kongxiangyiren/window-ai'
-      );
-      dialogs.value.push({
-        id: dialogs.value.length + 1,
-        role: 'ai',
-        text: '不支持AI功能, 请在支持AI功能的浏览器中打开,详情参考：https://github.com/kongxiangyiren/window-ai'
-      });
-      return;
-    }
-    const availability = (await window.ai.languageModel.capabilities()).available;
-    if (availability === 'readily') {
-      console.log('模型已经准备好了');
-      session.value = window.ai.languageModel.create();
-      disabled.value = false;
-    } else if (availability === 'after-download') {
-      console.log('模型正在下载中');
-      dialogs.value.push({
-        id: dialogs.value.length + 1,
-        role: 'ai',
-        text: '模型正在下载中'
-      });
-      return;
-    } else {
-      console.log('模型还没下载,详情参考：https://github.com/kongxiangyiren/window-ai');
-      dialogs.value.push({
-        id: dialogs.value.length + 1,
-        role: 'ai',
-        text: '模型还没下载,详情参考：https://github.com/kongxiangyiren/window-ai'
-      });
-      return;
-    }
-  });
+interface Message {
+  role: 'user' | 'assistant'
+  content: string
+  loading?: boolean
+}
 
-  async function handleSend() {
-    if (loading.value || question.value === '') return;
-    loading.value = true;
+const messages = ref<Message[]>([])
 
-    const questionn = question.value;
-    question.value = '';
+const newConversation = () => {
+  startPage.value = true
+  messages.value = []
+  firstClonedLanguageModel!.destroy()
+  languageModel!.destroy()
+  languageModel = undefined
+  firstClonedLanguageModel = undefined
+}
 
-    dialogs.value.push({
-      id: dialogs.value.length + 1,
-      role: 'me',
-      text: questionn
-    });
+const onSubmit = (evt: string) => {
+  inputValue.value = ''
+  startPage.value = false
+  // 用户发送消息
+  messages.value.push({
+    role: 'user',
+    content: evt,
+  })
+  fetchData(evt)
+}
 
-    const aiDialogID = dialogs.value.length + 1;
-
-    dialogs.value.push({
-      id: aiDialogID,
-      role: 'ai',
-      text: 'AI 思考中...'
-    });
-
-    const dialog = dialogs.value.find(item => item.id === aiDialogID);
-
-    if (!session.value) {
-      console.log('session 不存在');
-      return;
-    }
-
-    console.log(dialogs.value, 'dialogs.value');
-
-    const stream = (await session.value).promptStreaming(questionn);
-
-    dialog!.text = '';
-
-    let previousLength = 0;
-
-    // @ts-expect-error
-    for await (const chunk of stream) {
-      const newContent = chunk.slice(previousLength);
-      // console.log(newContent); // AI 的每次输出
-      previousLength = chunk.length;
-
-      dialog!.text += newContent;
-    }
-    console.log(dialog!.text); // 最终的 AI 回答（完整版）
-    hljs.highlightAll();
-    codecopy_func();
-    loading.value = false;
-    return;
-  }
-  async function handleNewChat() {
-    dialogs.value = [];
-    if (!session.value) {
-      console.log('session 不存在');
-      return;
-    }
-    // 销毁当前会话
-    (await session.value).destroy();
-    // 创建新的会话
-    session.value = window.ai.languageModel.create();
+let languageModel: (AITextSession & { clone: () => Promise<AITextSession> }) | undefined
+async function deai() {
+  if (!('LanguageModel' in self)) {
+    // The Translator API is supported.
+    alert('The Translator API is not supported in this browser.')
+    return false
   }
 
-  const preview = ref();
-  //摘自CSDN
-  /*生成复制按钮*/
-  //复制按钮
-  function codecopy_func() {
-    const btn = `<div class="codecopy-btn" data-title="复制" data-clipboard-action="copy" data-clipboard-target="#code_index" onclick="let t=this;t.innerHTML='复制成功';setTimeout(function(){t.innerHTML='复制';},1500);">复制</div>`;
-
-    if (!preview.value[preview.value.length - 1]) {
-      return;
-    }
-
-    //获取所有的代码区域的pre元素节点
-    const codecopys = (preview.value[preview.value.length - 1] as HTMLElement).getElementsByTagName(
-      'pre'
-    );
-    //遍历DOM（pre节点）节点
-    for (let i = 0; i < codecopys.length; i++) {
-      //pre元素对象
-      const codecopy = codecopys[i];
-
-      //生成复制按钮
-      const html_temp = btn.replace(/index/g, i + '');
-
-      //找到code元素，并添加id属性，id的值和复制按钮的属性 data-clipboard-target 的值是一样的
-      //判断pre标签内是否含有code标签，如是则执行
-
-      if (codecopy.querySelector('code')?.nodeName == 'CODE') {
-        codecopy.querySelector('code')!.id = 'code_' + i;
-        //将复制按钮追加至页面
-        const html = codecopy.innerHTML + html_temp;
-
-        codecopy.innerHTML = html;
-      }
-    }
-    /*初始化复制功能*/
-    const clipboardJs = new ClipboardJS('.codecopy-btn'); //注意：ClipboardJS替代了Clipboard
-
-    /*复制失败事件*/
-    clipboardJs.on('error', function (e) {
-      console.log(e);
-    });
+  const canDetect = await LanguageModel.availability()
+  if (canDetect === 'unavailable') {
+    alert('The Translator API is not available in this browser.')
+    return false
   }
+  if (canDetect === 'available') {
+    languageModel = await LanguageModel.create({
+      systemPrompt: '用中文回答',
+    })
+  } else {
+    languageModel = await LanguageModel.create({
+      systemPrompt: '用中文回答',
+
+      monitor(m) {
+        m.addEventListener('downloadprogress', (e) => {
+          console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`)
+        })
+      },
+    })
+  }
+}
+let firstClonedLanguageModel: AITextSession | undefined
+
+const contentContainer = ref()
+async function fetchData(question: string) {
+  messages.value.push({
+    role: 'assistant',
+    content: '',
+    loading: true,
+  })
+  if (!languageModel) {
+    const d = await deai()
+    if (!d) {
+      return (messages.value = []), (startPage.value = true)
+    }
+  }
+
+  if (!firstClonedLanguageModel) {
+    firstClonedLanguageModel = await languageModel!.clone()
+  }
+  const stream = firstClonedLanguageModel!.promptStreaming(question)
+
+  messages.value[messages.value.length - 1].loading = false
+
+  for await (const chunk of stream) {
+    const d = contentContainer.value.$el as HTMLElement
+
+    console.log(d.scrollTop, d.scrollHeight - d.clientHeight)
+
+    // 设置滚动到底
+    if (d.scrollTop <= d.scrollHeight - d.clientHeight) {
+      d.scrollTop = d.scrollHeight
+    }
+
+    messages.value[messages.value.length - 1].content += chunk
+  }
+}
 </script>
 
-<style scoped>
-  .container {
-    height: 100%;
+<style>
+.container {
+  width: 1000px;
+  margin: 20px auto;
+  height: calc(100vh - 82px);
+  padding: 20px;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+}
+
+.input-foot-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  margin-right: 8px;
+
+  .input-foot-left {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    span {
+      font-size: 14px;
+      line-height: 18px;
+      color: #252b3a;
+      cursor: pointer;
+    }
+
+    .input-foot-dividing-line {
+      width: 1px;
+      height: 14px;
+      background-color: #d7d8da;
+    }
+
+    .input-foot-maxlength {
+      font-size: 14px;
+      color: #71757f;
+    }
   }
 
-  .dialog {
-    flex: 1;
-    overflow: auto;
-  }
+  .input-foot-right {
+    .demo-button-content {
+      font-size: 14px;
+    }
 
-  .dialog-item {
-    display: flex;
+    & > *:not(:first-child) {
+      margin-left: 8px;
+    }
   }
-
-  .dialog-item-main {
-    max-width: 80%;
-    padding: 8px;
-    word-wrap: break-word;
-    margin-top: 16px;
-    border-radius: 4px;
-  }
-
-  .dialog-item-me {
-    justify-content: flex-end;
-  }
-
-  .dialog-item-me .dialog-item-main {
-    background-color: antiquewhite;
-  }
-
-  .dialog-item-ai .dialog-item-main {
-    background-color: #eee;
-  }
-  .logo {
-    width: 16px;
-    height: 16px;
-    vertical-align: middle;
-    position: relative;
-    top: -1px;
-  }
+}
 </style>
